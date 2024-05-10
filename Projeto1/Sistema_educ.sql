@@ -67,7 +67,6 @@ VALUES
     ('777.888.999-00', 'Michael Jordan', 45, 'E Oak St', '875', 'Chicago', 'Illinois', 'IL', 60611, 'Estados Unidos');
 
 --Povoar departamentos
-
 INSERT INTO departamentos (nome_dep) VALUES
     ('Tecnologia'),
     ('Engenharia'),
@@ -87,11 +86,6 @@ INSERT INTO cursos (nome_curso, id_dep) VALUES
     ('Pediatria', 3),  -- Medicina
     ('História', 4),  -- Humanas
     ('Contabilidade', 5);  -- Economia
-
--- Ver cursos e departamentos relacionados
-SELECT nome_curso, nome_dep
-FROM cursos
-INNER JOIN departamentos ON id_dep = id_dep;
 
 -- Povoar tabelas
 INSERT INTO matriculas (cpf, status, id_curso) VALUES
@@ -117,7 +111,58 @@ INSERT INTO disciplinas (nome_disc, optativa) VALUES
     ('História Antiga', false),  -- História (Humanas)
     ('Contabilidade Gerencial', false);  -- Contabilidade (Economia)	
 
--- Ver cursos e disciplinas, optativas ou não
-SELECT DISTINCT nome_curso, nome_disc, optativa
-FROM cursos
-INNER JOIN disciplinas ON id_curso = id_curso;
+
+-- Mostrar todos os dados dos alunos
+SELECT * FROM alunos
+
+--Exibir cursos associados a um departamento
+SELECT c.nome_curso, d.nome_disc
+FROM cursos c
+INNER JOIN curso_disciplinas cd ON c.id_curso = cd.id_curso
+INNER JOIN disciplinas d ON cd.id_disc = d.id_disc;
+
+-- Mostrar pelo cpf disciplinas de um aluno (Gisele fez dois cursos cada curso tem 4 disciplinas relacionadas)
+SELECT a.cpf, a.nome, d.nome_disc
+FROM alunos a
+INNER JOIN matriculas m ON a.cpf = m.cpf
+INNER JOIN matriculas_disciplinas md ON m.ra = md.ra
+INNER JOIN disciplinas d ON md.id_disc = d.id_disc
+WHERE a.cpf = '123.456.789-00'; -- Gisele
+
+--Alunos em um curso especificado
+SELECT a.cpf, a.nome
+FROM alunos a
+INNER JOIN matriculas m ON a.cpf = m.cpf
+INNER JOIN cursos c ON m.id_curso = c.id_curso
+WHERE c.nome_curso = 'Ciência da Computação'; -- Curso desejado
+
+-- Todos alunos em uma disciplina
+SELECT a.cpf, a.nome , d.nome_disc
+FROM alunos a
+INNER JOIN matriculas m ON a.cpf = m.cpf
+INNER JOIN matriculas_disciplinas md ON m.ra = md.ra
+INNER JOIN disciplinas d ON md.id_disc = d.id_disc
+WHERE d.nome_disc = 'Algoritmos'; -- Disciplina desejada
+
+--Alunos formados (Por isso Ayrton Senna sabia tudo sobre seu carro!)
+SELECT a.cpf, a.nome AS nome_aluno, c.nome_curso
+FROM alunos a
+INNER JOIN matriculas m ON a.cpf = m.cpf
+INNER JOIN cursos c ON m.id_curso = c.id_curso
+WHERE m.status = 'formado';
+
+-- Alunos ativos
+SELECT a.cpf, a.nome AS nome_aluno, c.nome_curso
+FROM alunos a
+INNER JOIN matriculas m ON a.cpf = m.cpf
+INNER JOIN cursos c ON m.id_curso = c.id_curso
+WHERE m.status = 'cursando';
+
+
+
+
+
+
+
+
+
