@@ -113,15 +113,22 @@ INSERT INTO disciplinas (nome_disc, optativa) VALUES
 
 
 -- Mostrar todos os dados dos alunos
-SELECT * FROM alunos
+SELECT * FROM alunos WHERE nome = 'Ayrton Senna'
 
---Exibir cursos associados a um departamento
-SELECT c.nome_curso, d.nome_disc
-FROM cursos c
-INNER JOIN curso_disciplinas cd ON c.id_curso = cd.id_curso
-INNER JOIN disciplinas d ON cd.id_disc = d.id_disc;
+SELECT * FROM matriculas INNER JOIN alunos USING (cpf)
+WHERE nome = 'Ayrton Senna' OR ra = '2'
 
--- Mostrar pelo cpf disciplinas de um aluno (Gisele fez dois cursos cada curso tem 4 disciplinas relacionadas)
+--Exibir curso associados a um departamento
+SELECT * FROM departamentos
+
+SELECT departamentos.nome_dep, cursos.nome_curso FROM departamentos 
+NATURAL INNER JOIN cursos WHERE nome_dep = 'Engenharia'
+
+-- Dado o nome de uma disciplina, exibir o nome dos cursos
+SELECT * FROM disciplinas NATURAL INNER JOIN curso_disciplinas
+NATURAL INNER JOIN cursos
+
+-- Mostrar pelo cpf as disciplinas de um aluno (Gisele fez dois cursos cada curso tem 4 disciplinas relacionadas)
 SELECT a.cpf, a.nome, d.nome_disc
 FROM alunos a
 INNER JOIN matriculas m ON a.cpf = m.cpf
@@ -129,14 +136,14 @@ INNER JOIN matriculas_disciplinas md ON m.ra = md.ra
 INNER JOIN disciplinas d ON md.id_disc = d.id_disc
 WHERE a.cpf = '123.456.789-00'; -- Gisele
 
---Alunos em um curso especificado
+--Filtrar alunos em um curso específico
 SELECT a.cpf, a.nome
 FROM alunos a
 INNER JOIN matriculas m ON a.cpf = m.cpf
 INNER JOIN cursos c ON m.id_curso = c.id_curso
 WHERE c.nome_curso = 'Ciência da Computação'; -- Curso desejado
 
--- Todos alunos em uma disciplina
+-- Filtrar todos alunos em uma disciplina específica
 SELECT a.cpf, a.nome , d.nome_disc
 FROM alunos a
 INNER JOIN matriculas m ON a.cpf = m.cpf
@@ -145,20 +152,31 @@ INNER JOIN disciplinas d ON md.id_disc = d.id_disc
 WHERE d.nome_disc = 'Algoritmos'; -- Disciplina desejada
 
 --Alunos formados (Por isso Ayrton Senna sabia tudo sobre seu carro!)
-SELECT a.cpf, a.nome AS nome_aluno, c.nome_curso
+SELECT a.nome, m.status AS nome_aluno, c.nome_curso
 FROM alunos a
 INNER JOIN matriculas m ON a.cpf = m.cpf
 INNER JOIN cursos c ON m.id_curso = c.id_curso
 WHERE m.status = 'formado';
 
 -- Alunos ativos
-SELECT a.cpf, a.nome AS nome_aluno, c.nome_curso
+SELECT a.nome, m.status AS nome_aluno, c.nome_curso
 FROM alunos a
 INNER JOIN matriculas m ON a.cpf = m.cpf
 INNER JOIN cursos c ON m.id_curso = c.id_curso
 WHERE m.status = 'cursando';
 
+-- Apresentar a quantidade de alunos por curso
+SELECT nome_curso, COUNT(nome) FROM ((alunos NATURAL INNER JOIN matriculas)
+NATURAL INNER JOIN cursos)
+WHERE status = 'cursando'
+GROUP BY nome_curso
 
+-- Apresentar nº de alunos em uma disciplina
+SELECT nome_disc, COUNT(nome) FROM ((alunos NATURAL INNER JOIN matriculas)
+NATURAL INNER JOIN matriculas_disciplinas)
+NATURAL INNER JOIN disciplinas
+WHERE status = 'cursando'
+GROUP BY nome_disc
 
 
 
